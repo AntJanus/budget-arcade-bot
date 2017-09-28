@@ -101,7 +101,10 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 			fmt.Println("Done")
 
-			message := fmt.Sprintf("Game: %s \nDate: %s", games[0].Name, games[0].ReleaseDates[0].Human)
+      game := games[0]
+      releaseDate = game.ReleaseDates[0]
+
+      message := fmt.Sprintf("Game: %s \nDate: %s\nPlatform: %s", game.Name, releaseDate.human, releaseDate.platform)
 
 			_, _ = s.ChannelMessageSend(m.ChannelID, message)
 		}

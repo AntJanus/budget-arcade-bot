@@ -5,8 +5,9 @@ import (
 	"fmt"
 	"github.com/bwmarrin/discordgo"
 	"net/http"
-  "net/url"
+	"net/url"
 	"ngp-bot/config"
+	"sort"
 	"strings"
 )
 
@@ -16,17 +17,21 @@ var goBot *discordgo.Session
 var apiURL = "https://igdbcom-internet-game-database-v1.p.mashape.com/games/?fields=name%2Crelease_dates&limit=1&offset=0&search="
 var client = &http.Client{}
 
+type ReleaseDate struct {
+	Category int    `json:"category"`
+	Platform int    `json:"platform"`
+	Date     int64  `json:"date"`
+	Human    string `json:"human"`
+	Y        int    `json:"y"`
+	M        int    `json:"m"`
+}
+
+type ReleaseDates []ReleaseDate
+
 type GameStruct []struct {
-	ID           int    `json:"id"`
-	Name         string `json:"name"`
-	ReleaseDates []struct {
-		Category int    `json:"category"`
-		Platform int    `json:"platform"`
-		Date     int64  `json:"date"`
-		Human    string `json:"human"`
-		Y        int    `json:"y"`
-		M        int    `json:"m"`
-	} `json:"release_dates"`
+	ID           int          `json:"id"`
+	Name         string       `json:"name"`
+	ReleaseDates ReleaseDates `json:"release_dates"`
 }
 
 func Start() {
@@ -59,6 +64,10 @@ func Start() {
 	return
 }
 
+func (r ReleaseDates) Less(i, j int) bool { return r[i].Date < r[j].Date }
+func (r ReleaseDates) Len() int           { return len(r) }
+func (r ReleaseDates) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+
 func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 	if strings.HasPrefix(m.Content, config.BotPrefix) {
@@ -74,7 +83,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if strings.HasPrefix(command, "check") {
 			fmt.Println("Checking")
 			query := strings.TrimPrefix(command, "check ")
-      urlQuery := url.QueryEscape(query)
+			urlQuery := url.QueryEscape(query)
 			req, err := http.NewRequest("GET", apiURL+urlQuery, nil)
 
 			req.Header.Add("X-Mashape-Key", config.MashapeKey)
@@ -101,10 +110,12 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 			fmt.Println("Done")
 
-      game := games[0]
-      releaseDate = game.ReleaseDates[0]
+			game := games[0]
+			releaseDates := game.ReleaseDates
+			sort.Sort(ReleaseDates(releaseDates))
+			releaseDate := releaseDates[0]
 
-      message := fmt.Sprintf("Game: %s \nDate: %s\nPlatform: %s", game.Name, releaseDate.human, releaseDate.platform)
+			message := fmt.Sprintf("Game: %s \nDate: %s", game.Name, releaseDate.Human)
 
 			_, _ = s.ChannelMessageSend(m.ChannelID, message)
 		}

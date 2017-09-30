@@ -108,16 +108,31 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			fmt.Println("Done")
+			if len(games) == 0 {
+				message := fmt.Sprintf("Cannot find Game: %s", query)
 
-			game := games[0]
-			releaseDates := game.ReleaseDates
-			sort.Sort(ReleaseDates(releaseDates))
-			releaseDate := releaseDates[0]
+				_, _ = s.ChannelMessageSend(m.ChannelID, message)
 
-			message := fmt.Sprintf("Game: %s \nDate: %s", game.Name, releaseDate.Human)
+			} else {
 
-			_, _ = s.ChannelMessageSend(m.ChannelID, message)
+				fmt.Println("Done")
+
+				game := games[0]
+				releaseDates := game.ReleaseDates
+				sort.Sort(ReleaseDates(releaseDates))
+
+        humanDate := ""
+
+        if len(releaseDates) > 0 {
+          humanDate = releaseDates[0].Human
+        } else {
+          humanDate = "No available date"
+        }
+
+        message := fmt.Sprintf("Game: %s \nDate: %s", game.Name, humanDate)
+
+				_, _ = s.ChannelMessageSend(m.ChannelID, message)
+			}
 		}
 	}
 

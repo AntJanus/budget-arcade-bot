@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"ngp-bot/bot"
-	"ngp-bot/config"
+	"github.com/AntJanus/ngp-bot/bot"
+	"github.com/AntJanus/ngp-bot/config"
 )
 
 func main() {

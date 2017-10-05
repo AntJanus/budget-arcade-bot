@@ -6,9 +6,10 @@ import (
 	"github.com/bwmarrin/discordgo"
 	"net/http"
 	"net/url"
-	"ngp-bot/config"
+	"github.com/AntJanus/ngp-bot/config"
 	"sort"
 	"strings"
+	"time"
 )
 
 var BotID string
@@ -16,6 +17,9 @@ var goBot *discordgo.Session
 
 var apiURL = "https://igdbcom-internet-game-database-v1.p.mashape.com/games/?fields=name%2Crelease_dates&limit=1&offset=0&search="
 var client = &http.Client{}
+
+var yesEmoji = "white_check_mark"
+var noEmoji = "no_entry"
 
 type ReleaseDate struct {
 	Category int    `json:"category"`
@@ -121,15 +125,29 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				releaseDates := game.ReleaseDates
 				sort.Sort(ReleaseDates(releaseDates))
 
-        humanDate := ""
+				humanDate := ""
 
-        if len(releaseDates) > 0 {
-          humanDate = releaseDates[0].Human
-        } else {
-          humanDate = "No available date"
-        }
+				if len(releaseDates) > 0 {
+					humanDate = releaseDates[0].Human
+				} else {
+					humanDate = "No available date"
+				}
 
-        message := fmt.Sprintf("Game: %s \nDate: %s", game.Name, humanDate)
+				nowDate := time.Now()
+				fmt.Println(releaseDates[0].Date)
+				unixDate := time.Unix(releaseDates[0].Date/1000, 0)
+				dateDifference := nowDate.Sub(unixDate)
+				yearDiff := dateDifference.Hours() / 24 / 365
+
+				statusEmoji := ""
+
+				if yearDiff > 15 {
+					statusEmoji = yesEmoji
+				} else {
+					statusEmoji = noEmoji
+				}
+
+				message := fmt.Sprintf("Game: %s \nDate: %s \nEligible: :%s:", game.Name, humanDate, statusEmoji)
 
 				_, _ = s.ChannelMessageSend(m.ChannelID, message)
 			}

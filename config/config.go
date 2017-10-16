@@ -7,17 +7,25 @@ import (
 )
 
 var (
-	Token      string
-	BotPrefix  string
-	MashapeKey string
+	Token        string
+	BotPrefix    string
+	MashapeKey   string
+	GoogleAPIKey string
+	WorkBookID   string
+	SheetName    string
+	Salty        map[string]string
 
 	config *configStruct
 )
 
 type configStruct struct {
-	Token      string `json:"Token"`
-	BotPrefix  string `json:"BotPrefix"`
-	MashapeKey string `json:"MashapeKey"`
+	Token        string            `json:"Token"`
+	BotPrefix    string            `json:"BotPrefix"`
+	MashapeKey   string            `json:"MashapeKey"`
+	GoogleAPIKey string            `json:"GoogleAPIKey"`
+	WorkBookID   string            `json:"WorkBookID"`
+	SheetName    string            `json:"SheetName"`
+	Salty        map[string]string `json:"Salty"`
 }
 
 func ReadConfig() error {
@@ -44,6 +52,10 @@ func ReadConfig() error {
 	Token = config.Token
 	BotPrefix = config.BotPrefix
 	MashapeKey = config.MashapeKey
+	GoogleAPIKey = config.GoogleAPIKey
+	WorkBookID = config.WorkBookID
+	SheetName = config.SheetName
+	Salty = config.Salty
 
 	return nil
 }

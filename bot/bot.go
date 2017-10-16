@@ -3,13 +3,15 @@ package bot
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/bwmarrin/discordgo"
 	"net/http"
 	"net/url"
-	"github.com/AntJanus/ngp-bot/config"
 	"sort"
 	"strings"
 	"time"
+
+	"github.com/AntJanus/ngp-bot/config"
+	"github.com/AntJanus/ngp-bot/sheet"
+	"github.com/bwmarrin/discordgo"
 )
 
 var BotID string
@@ -20,6 +22,8 @@ var client = &http.Client{}
 
 var yesEmoji = "white_check_mark"
 var noEmoji = "no_entry"
+var plusEmoji = "white_check_mark"
+var minusEmoji = "no_entry"
 
 type ReleaseDate struct {
 	Category int    `json:"category"`
@@ -81,6 +85,34 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 		fmt.Println(command)
 
 		if m.Author.ID == BotID {
+			return
+		}
+
+		if strings.HasPrefix(command, "status") {
+			fmt.Println("Checking...")
+			query := strings.TrimPrefix(command, "status ")
+			gameMatch, _ := sheet.ReadSheet(query)
+			ngpStatus := ""
+			message := ""
+
+			if gameMatch.NGP == 1 {
+				ngpStatus = plusEmoji
+			} else if gameMatch.NGP == -1 {
+				ngpStatus = minusEmoji
+			}
+
+			if gameMatch.ExactMatch == false {
+				message += "The closest match I could find: \n"
+			}
+
+			message += fmt.Sprintf("Game: %s \nDate: %s \nNGP: :%s: %s", gameMatch.Name, gameMatch.Date, ngpStatus, gameMatch.Salty)
+
+			if gameMatch.NGP != 0 {
+				message += fmt.Sprintf("\nEpisode Number: %s\nEpisode Link: %s", gameMatch.EpisodeNum, gameMatch.EpisodeLink)
+			}
+
+			_, _ = s.ChannelMessageSend(m.ChannelID, message)
+
 			return
 		}
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/AntJanus/ngp-bot/config"
 	"github.com/schollz/closestmatch"
@@ -85,20 +86,27 @@ func ReadSheet(gameName string) (rowStruct, error) {
 			}
 		}
 
-		sheetMap[val[0]] = rowMap
+		sheetMap[strings.ToLower(val[0])] = rowMap
 	}
 
-	bagSizes := []int{2}
+	var gameListing rowStruct
 
-	cm := closestmatch.New(gameTitles, bagSizes)
-	gameMatch := cm.Closest(gameName)
-	gameListing := sheetMap[gameMatch]
-
-	if gameMatch == gameName {
+	if val, ok := sheetMap[strings.ToLower(gameName)]; ok {
+		gameListing = val
 		gameListing.ExactMatch = true
+	} else {
+		bagSizes := []int{2}
+
+		cm := closestmatch.New(gameTitles, bagSizes)
+		gameMatch := cm.Closest(gameName)
+		gameListing = sheetMap[gameMatch]
+
+		if gameMatch == gameName {
+			gameListing.ExactMatch = true
+		}
 	}
 
-	if val, ok := config.Salty[gameMatch]; ok {
+	if val, ok := config.Salty[gameListing.Name]; ok {
 		gameListing.Salty = "and " + val + " is salty about it"
 	}
 

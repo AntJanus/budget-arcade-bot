@@ -9,19 +9,21 @@ import (
 var (
 	Token        string
 	BotPrefix    string
-	MashapeKey   string
 	GoogleAPIKey string
 	WorkBookID   string
 	SheetName    string
+  IGDBUrl      string
+  IGDBKey      string
 	Salty        map[string]string
 
 	config *configStruct
 )
 
 type configStruct struct {
+  IGDBUrl      string            `json:"IGDBUrl"`
+  IGDBKey      string            `json:"IGDBKey"`
 	Token        string            `json:"Token"`
 	BotPrefix    string            `json:"BotPrefix"`
-	MashapeKey   string            `json:"MashapeKey"`
 	GoogleAPIKey string            `json:"GoogleAPIKey"`
 	WorkBookID   string            `json:"WorkBookID"`
 	SheetName    string            `json:"SheetName"`
@@ -50,8 +52,9 @@ func ReadConfig() error {
 	}
 
 	Token = config.Token
+	IGDBUrl = config.IGDBUrl
+	IGDBKey = config.IGDBKey
 	BotPrefix = config.BotPrefix
-	MashapeKey = config.MashapeKey
 	GoogleAPIKey = config.GoogleAPIKey
 	WorkBookID = config.WorkBookID
 	SheetName = config.SheetName

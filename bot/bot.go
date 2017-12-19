@@ -65,7 +65,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 		if strings.HasPrefix(command, "check") {
 			query := strings.TrimPrefix(command, "check ")
-			games, err := igdb.Search(query)
+			game, err := igdb.Search(query)
 
 			if err != nil {
 				fmt.Println("Error is here")
@@ -73,7 +73,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			if len(games) == 0 {
+			if game.Name == "" {
 				message := fmt.Sprintf("Cannot find Game: %s", query)
 
 				_, _ = s.ChannelMessageSend(m.ChannelID, message)
@@ -81,7 +81,6 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			game := games[0]
 			releaseDate := game.FirstReleaseDate
 			unixDate := time.Unix(releaseDate/1000, 0)
 			humanDate := unixDate.Format("01/02/2006")
@@ -125,13 +124,11 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			if gameMatch.ExactMatch == false {
 				message += "The closest match I could find: \n"
 				message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
+			} else {
+				message += "Game is in the master list\n"
 			}
 
 			message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)
-
-			if gameMatch.NGP != 0 {
-				message += fmt.Sprintf("\nEpisode Number: %s\nEpisode Link: %s", gameMatch.EpisodeNum, gameMatch.EpisodeLink)
-			}
 
 			_, _ = s.ChannelMessageSend(m.ChannelID, message)
 		}

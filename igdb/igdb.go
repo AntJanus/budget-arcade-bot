@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strings"
 
 	"github.com/AntJanus/ngp-bot/config"
 )
@@ -17,7 +18,7 @@ var (
 
 var client = &http.Client{}
 
-type GameStruct []struct {
+type GameStruct struct {
 	ID         int     `json:"id"`
 	Name       string  `json:"name"`
 	URL        string  `json:"url"`
@@ -36,6 +37,7 @@ type GameStruct []struct {
 	} `json:"cover"`
 	Summary string `json:"summary,omitempty"`
 }
+type GameList []GameStruct
 
 func Search(gameName string) (GameStruct, error) {
 	urlQuery := url.QueryEscape(gameName)
@@ -48,14 +50,21 @@ func Search(gameName string) (GameStruct, error) {
 
 	if err != nil {
 		fmt.Println(err.Error())
-		return nil, err
+		var empty GameStruct
+
+		return empty, err
 	}
 
 	defer resp.Body.Close()
 
-	var games GameStruct
+	var games GameList
 
 	err = json.NewDecoder(resp.Body).Decode(&games)
+	game := games[0]
 
-	return games, err
+	if strings.HasPrefix(game.Cover.URL, "//") {
+		game.Cover.URL = "https:" + game.Cover.URL
+	}
+
+	return game, err
 }

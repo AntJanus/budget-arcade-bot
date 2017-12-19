@@ -81,7 +81,7 @@ func ReadSheet(gameName string) (rowStruct, error) {
 		if checkIfExists(3, val) != "" {
 			if val[3] == "-" {
 				rowMap.NGP = -1
-			} else if val[3] == plusMessage {
+			} else if val[3] == plusMessage || val[3] == "'=+" || val[3] == "=+" {
 				rowMap.NGP = 1
 			}
 		}
@@ -100,10 +100,6 @@ func ReadSheet(gameName string) (rowStruct, error) {
 		cm := closestmatch.New(gameTitles, bagSizes)
 		gameMatch := cm.Closest(gameName)
 		gameListing = sheetMap[gameMatch]
-
-		if gameMatch == gameName {
-			gameListing.ExactMatch = true
-		}
 	}
 
 	if val, ok := config.Salty[gameListing.Name]; ok {

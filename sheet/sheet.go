@@ -99,7 +99,7 @@ func ReadSheet(gameName string) (rowStruct, error) {
 
 		cm := closestmatch.New(gameTitles, bagSizes)
 		gameMatch := cm.Closest(gameName)
-		gameListing = sheetMap[gameMatch]
+		gameListing = sheetMap[strings.ToLower(gameMatch)]
 	}
 
 	if val, ok := config.Salty[gameListing.Name]; ok {

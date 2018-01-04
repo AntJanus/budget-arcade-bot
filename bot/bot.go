@@ -115,12 +115,6 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			ngpStatus := ""
 			message = ""
 
-			if gameMatch.NGP == 1 {
-				ngpStatus = plusEmoji
-			} else if gameMatch.NGP == -1 {
-				ngpStatus = minusEmoji
-			}
-
 			if gameMatch.ExactMatch == false {
 				message += "The closest match I could find: \n"
 				message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
@@ -128,7 +122,13 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				message += "Game is in the master list\n"
 			}
 
-			message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)
+			if gameMatch.NGP == 1 {
+				ngpStatus = plusEmoji
+				message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)
+			} else if gameMatch.NGP == -1 {
+				ngpStatus = minusEmoji
+				message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)
+			}
 
 			_, _ = s.ChannelMessageSend(m.ChannelID, message)
 		}

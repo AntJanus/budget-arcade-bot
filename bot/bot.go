@@ -63,6 +63,44 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
+    if strings.HasPrefix(command, "salty") {
+      query := strings.TrimPrefix(command, "salty ")
+
+			gameMatch, _ := sheet.ReadSheet(query)
+			// ngpStatus := ""
+			message := ""
+
+			if gameMatch.ExactMatch == false {
+				message += fmt.Sprintf("Cannot find an exact match for: %s", query)
+				message += "Did you mean? \n"
+				message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
+
+				_, _ = s.ChannelMessageSend(m.ChannelID, message)
+
+				return
+			}
+
+      if gameMatch.NGP != 1 && gameMatch.NGP != -1 {
+				message += fmt.Sprintf("Game has not been NGP rated yet: %s", query)
+
+				_, _ = s.ChannelMessageSend(m.ChannelID, message)
+
+				return
+      }
+
+      message += "Saltiness is still being configured..."
+
+
+
+      // Store.saltySave(game.Name, user)
+
+      // message += fmt.Sprintf("%s your saltiness have been registered", user)
+
+      _, _ = s.ChannelMessageSend(m.ChannelID, message)
+
+      return
+    }
+
 		if strings.HasPrefix(command, "check") {
 			query := strings.TrimPrefix(command, "check ")
 			game, err := igdb.Search(query)
@@ -81,8 +119,8 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 				return
 			}
 
-			releaseDate := game.FirstReleaseDate
-			unixDate := time.Unix(releaseDate/1000, 0)
+      releaseDate := game.FirstReleaseDate
+      unixDate := time.Unix(releaseDate/1000, 0)
 			humanDate := unixDate.Format("01/02/2006")
 
 			nowDate := time.Now()
@@ -100,15 +138,23 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			// cover
 			_, _ = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", game.Cover.URL))
 
-			// game information
-			message := fmt.Sprintf("Game: %s \nDate: %s \nEligible: :%s:", game.Name, humanDate, statusEmoji)
+      // game information
+      message := ""
 
-			_, _ = s.ChannelMessageSend(m.ChannelID, message)
+      if releaseDate == 0 {
+        message = fmt.Sprintf("Game: %s \nDate: [unknown] \n", game.Name)
 
-			if yearDiff < 15 {
-				fmt.Println("Game ineligible for NGP")
-				return
-			}
+        _, _ = s.ChannelMessageSend(m.ChannelID, message)
+      } else {
+        message = fmt.Sprintf("Game: %s \nDate: %s \nEligible: :%s:", game.Name, humanDate, statusEmoji)
+
+        _, _ = s.ChannelMessageSend(m.ChannelID, message)
+
+        if yearDiff < 15 {
+          fmt.Println("Game ineligible for NGP")
+          return
+        }
+      }
 
 			query = game.Name
 			gameMatch, _ := sheet.ReadSheet(query)

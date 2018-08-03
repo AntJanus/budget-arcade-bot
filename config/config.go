@@ -12,16 +12,16 @@ var (
 	GoogleAPIKey string
 	WorkBookID   string
 	SheetName    string
-  IGDBUrl      string
-  IGDBKey      string
+	IGDBUrl      string
+	IGDBKey      string
 	Salty        map[string]string
 
 	config *configStruct
 )
 
 type configStruct struct {
-  IGDBUrl      string            `json:"IGDBUrl"`
-  IGDBKey      string            `json:"IGDBKey"`
+	IGDBUrl      string            `json:"IGDBUrl"`
+	IGDBKey      string            `json:"IGDBKey"`
 	Token        string            `json:"Token"`
 	BotPrefix    string            `json:"BotPrefix"`
 	GoogleAPIKey string            `json:"GoogleAPIKey"`

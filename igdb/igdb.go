@@ -19,23 +19,16 @@ var (
 var client = &http.Client{}
 
 type GameStruct struct {
-	ID         int     `json:"id"`
-	Name       string  `json:"name"`
-	URL        string  `json:"url"`
-	Rating     float64 `json:"rating"`
-	TimeToBeat struct {
-		Hastly     int `json:"hastly"`
-		Normally   int `json:"normally"`
-		Completely int `json:"completely"`
-	} `json:"time_to_beat,omitempty"`
-	FirstReleaseDate int64 `json:"first_release_date"`
+	ID               int    `json:"id"`
+	Name             string `json:"name"`
+	URL              string `json:"url"`
+	FirstReleaseDate int64  `json:"first_release_date,omitempty"`
 	Cover            struct {
 		URL          string `json:"url"`
 		CloudinaryID string `json:"cloudinary_id"`
 		Width        int    `json:"width"`
 		Height       int    `json:"height"`
-	} `json:"cover"`
-	Summary string `json:"summary,omitempty"`
+	} `json:"cover,omitempty"`
 }
 type GameList []GameStruct
 
@@ -60,6 +53,14 @@ func Search(gameName string) (GameStruct, error) {
 	var games GameList
 
 	err = json.NewDecoder(resp.Body).Decode(&games)
+
+	if err != nil {
+		fmt.Println(err.Error())
+		var empty GameStruct
+
+		return empty, err
+	}
+
 	game := games[0]
 
 	if strings.HasPrefix(game.Cover.URL, "//") {

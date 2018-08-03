@@ -66,16 +66,12 @@ func ReadSheet(gameName string) (rowStruct, error) {
 		gameTitles = append(gameTitles, val[0])
 
 		rowMap := rowStruct{
-			Name:        val[0],
-			Date:        val[1],
-			Platform:    val[2],
-			NGP:         0,
-			EpisodeNum:  checkIfExists(4, val),
-			EpisodeLink: checkIfExists(5, val),
-			Guest:       checkIfExists(6, val),
-			PatreonPool: checkIfExists(7, val),
-			ExactMatch:  false,
-			Salty:       "",
+			Name:       val[0],
+			Date:       val[1],
+			Platform:   val[2],
+			NGP:        0,
+			ExactMatch: false,
+			Salty:      "",
 		}
 
 		if checkIfExists(3, val) != "" {

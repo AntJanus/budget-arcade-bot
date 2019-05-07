@@ -59,25 +59,36 @@ func ReadSheet(gameName string) (rowStruct, error) {
 	sheetMap := make(map[string]rowStruct)
 
 	for key, val := range sheet.Values {
-		if key == 0 {
+		// skip first 2 rows
+		if key == 0 || key == 1 {
 			continue
 		}
+
+		/*
+			Structure:
+				Title
+				Date
+				Original System
+				Episode #,
+				NG+
+		*/
 
 		gameTitles = append(gameTitles, val[0])
 
 		rowMap := rowStruct{
 			Name:       val[0],
-			Date:       val[1],
-			Platform:   val[2],
+			Date:       checkIfExists(1, val),
+			Platform:   checkIfExists(2, val),
+			EpisodeNum: checkIfExists(3, val),
 			NGP:        0,
 			ExactMatch: false,
 			Salty:      "",
 		}
 
-		if checkIfExists(3, val) != "" {
-			if val[3] == "-" {
+		if checkIfExists(4, val) != "" {
+			if val[4] == "-" || val[4] == "--" {
 				rowMap.NGP = -1
-			} else if val[3] == plusMessage || val[3] == "'=+" || val[3] == "=+" {
+			} else if val[4] == "NG++" || val[4] == "NG+" {
 				rowMap.NGP = 1
 			}
 		}

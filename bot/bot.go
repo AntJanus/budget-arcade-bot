@@ -158,11 +158,15 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			ngpStatus := ""
 			message = ""
 
-			if gameMatch.ExactMatch == false {
-				message += "The closest match I could find: \n"
-				message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
+			if len(gameMatch.Name) == 0 {
+				message += "Could not find game in master list"
 			} else {
-				message += "Game is in the master list\n"
+				if gameMatch.ExactMatch == false {
+					message += "The closest match I could find: \n"
+					message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
+				} else {
+					message += "Game is in the master list\n"
+				}
 			}
 
 			if gameMatch.NGP == 1 {

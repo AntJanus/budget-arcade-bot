@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/AntJanus/ngp-bot/config"
+	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/schollz/closestmatch"
 )
 
@@ -110,9 +111,12 @@ func ReadSheet(gameName string) (RowStruct, error) {
 		bagSizes := []int{2, 3, 4}
 
 		cm := closestmatch.New(gameTitles, bagSizes)
-		fmt.Println(cm.AccuracyMutatingWords())
 		gameMatch := cm.Closest(gameName)
-		gameListing = sheetMap[strings.ToLower(gameMatch)]
+		distance := fuzzy.LevenshteinDistance(gameName, gameMatch)
+
+		if distance < 12 {
+			gameListing = sheetMap[strings.ToLower(gameMatch)]
+		}
 	}
 
 	if val, ok := config.Salty[gameListing.Name]; ok {

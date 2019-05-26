@@ -171,7 +171,8 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 			if gameMatch.NGP == 1 {
 				ngpStatus = plusEmoji
-				message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)
+				message += fmt.Sprintf("NGP: :%s: %s\n", ngpStatus, gameMatch.Salty)
+				message += fmt.Sprintf("Ep#: %s", gameMatch.EpisodeNum)
 			} else if gameMatch.NGP == -1 {
 				ngpStatus = minusEmoji
 				message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)

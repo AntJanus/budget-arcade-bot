@@ -11,7 +11,6 @@ import (
 )
 
 var apiURL = "https://sheets.googleapis.com/v4/spreadsheets/%s/values/%s?key=%s"
-var plusMessage = "#ERROR!"
 
 type sheetStruct struct {
 	Range          string     `json:"range"`
@@ -19,7 +18,10 @@ type sheetStruct struct {
 	Values         [][]string `json:"values"`
 }
 
-type rowStruct struct {
+/*
+RowStruct describes structure of spreadsheet data
+*/
+type RowStruct struct {
 	Name        string
 	Date        string
 	Platform    string
@@ -32,7 +34,10 @@ type rowStruct struct {
 	Salty       string
 }
 
-func ReadSheet(gameName string) (rowStruct, error) {
+/*
+ReadSheet fetches spreadsheet, reads it, and matches a game to input gameName
+*/
+func ReadSheet(gameName string) (RowStruct, error) {
 	query := fmt.Sprintf(apiURL, config.WorkBookID, config.SheetName, config.GoogleAPIKey)
 
 	resp, err := http.Get(query)
@@ -40,7 +45,7 @@ func ReadSheet(gameName string) (rowStruct, error) {
 	if err != nil {
 		fmt.Println("Error is here")
 		fmt.Println(err.Error())
-		return rowStruct{}, err
+		return RowStruct{}, err
 	}
 
 	defer resp.Body.Close()
@@ -52,11 +57,11 @@ func ReadSheet(gameName string) (rowStruct, error) {
 	if err != nil {
 		fmt.Println("Error is here")
 		fmt.Println(err.Error())
-		return rowStruct{}, err
+		return RowStruct{}, err
 	}
 
 	gameTitles := []string{}
-	sheetMap := make(map[string]rowStruct)
+	sheetMap := make(map[string]RowStruct)
 
 	for key, val := range sheet.Values {
 		// skip first 2 rows
@@ -75,7 +80,7 @@ func ReadSheet(gameName string) (rowStruct, error) {
 
 		gameTitles = append(gameTitles, val[0])
 
-		rowMap := rowStruct{
+		rowMap := RowStruct{
 			Name:       val[0],
 			Date:       checkIfExists(1, val),
 			Platform:   checkIfExists(2, val),
@@ -96,15 +101,16 @@ func ReadSheet(gameName string) (rowStruct, error) {
 		sheetMap[strings.ToLower(val[0])] = rowMap
 	}
 
-	var gameListing rowStruct
+	var gameListing RowStruct
 
 	if val, ok := sheetMap[strings.ToLower(gameName)]; ok {
 		gameListing = val
 		gameListing.ExactMatch = true
 	} else {
-		bagSizes := []int{2}
+		bagSizes := []int{2, 3, 4}
 
 		cm := closestmatch.New(gameTitles, bagSizes)
+		fmt.Println(cm.AccuracyMutatingWords())
 		gameMatch := cm.Closest(gameName)
 		gameListing = sheetMap[strings.ToLower(gameMatch)]
 	}

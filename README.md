@@ -1,6 +1,6 @@
-# NGP Bot
+# Budget Arcade Bot
 
-A Discord bot for New Game Plus podcast.
+A Discord bot for Budget Arcade podcast.
 
 ## Features
 

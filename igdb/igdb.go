@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/AntJanus/ngp-bot/config"
+	"github.com/AntJanus/budget-arcade-bot/config"
 )
 
 var (

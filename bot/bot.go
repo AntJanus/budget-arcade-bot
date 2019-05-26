@@ -5,9 +5,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/AntJanus/ngp-bot/config"
-	"github.com/AntJanus/ngp-bot/igdb"
-	"github.com/AntJanus/ngp-bot/sheet"
+	"github.com/AntJanus/budget-arcade-bot/config"
+	"github.com/AntJanus/budget-arcade-bot/igdb"
+	"github.com/AntJanus/budget-arcade-bot/sheet"
 	"github.com/bwmarrin/discordgo"
 )
 
@@ -63,41 +63,6 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			return
 		}
 
-		if strings.HasPrefix(command, "salty") {
-			query := strings.TrimPrefix(command, "salty ")
-
-			gameMatch, _ := sheet.ReadSheet(query)
-			// ngpStatus := ""
-			message := ""
-
-			if gameMatch.ExactMatch == false {
-				message += fmt.Sprintf("Cannot find an exact match for: %s", query)
-				message += "Did you mean? \n"
-				message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
-
-				_, _ = s.ChannelMessageSend(m.ChannelID, message)
-
-				return
-			}
-
-			if gameMatch.NGP != 1 && gameMatch.NGP != -1 {
-				message += fmt.Sprintf("Game has not been NGP rated yet: %s", query)
-
-				_, _ = s.ChannelMessageSend(m.ChannelID, message)
-
-				return
-			}
-
-			message += "Saltiness is still being configured..."
-			// Store.saltySave(game.Name, user)
-
-			// message += fmt.Sprintf("%s your saltiness have been registered", user)
-
-			_, _ = s.ChannelMessageSend(m.ChannelID, message)
-
-			return
-		}
-
 		if strings.HasPrefix(command, "check") {
 			query := strings.TrimPrefix(command, "check ")
 			game, err := igdb.Search(query)
@@ -120,18 +85,6 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			unixDate := time.Unix(releaseDate, 0)
 			humanDate := unixDate.Format("01/02/2006")
 
-			nowDate := time.Now()
-			dateDifference := nowDate.Sub(unixDate)
-			yearDiff := dateDifference.Hours() / 24 / 365
-
-			statusEmoji := ""
-
-			if yearDiff > 15 {
-				statusEmoji = yesEmoji
-			} else {
-				statusEmoji = noEmoji
-			}
-
 			// cover
 			_, _ = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", game.URL))
 
@@ -143,19 +96,14 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 
 				_, _ = s.ChannelMessageSend(m.ChannelID, message)
 			} else {
-				message = fmt.Sprintf("Game: %s \nDate: %s \nEligible: :%s:", game.Name, humanDate, statusEmoji)
+				message = fmt.Sprintf("Game: %s \nDate: %s", game.Name, humanDate)
 
 				_, _ = s.ChannelMessageSend(m.ChannelID, message)
-
-				if yearDiff < 15 {
-					fmt.Println("Game ineligible for NGP")
-					return
-				}
 			}
 
 			query = game.Name
 			gameMatch, _ := sheet.ReadSheet(query)
-			ngpStatus := ""
+			approvalStatus := ""
 			message = ""
 
 			if len(gameMatch.Name) == 0 {
@@ -163,19 +111,19 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			} else {
 				if gameMatch.ExactMatch == false {
 					message += "The closest match I could find: \n"
-					message += fmt.Sprintf("Game: %s\nDate: %s\n", gameMatch.Name, gameMatch.Date)
+					message += fmt.Sprintf("Game: %s\n", gameMatch.Name)
 				} else {
 					message += "Game is in the master list\n"
 				}
 			}
 
-			if gameMatch.NGP == 1 {
-				ngpStatus = plusEmoji
-				message += fmt.Sprintf("NGP: :%s: %s\n", ngpStatus, gameMatch.Salty)
+			if gameMatch.Approval == 1 {
+				approvalStatus = plusEmoji
+				message += fmt.Sprintf("Approval: :%s: %s\n", approvalStatus, gameMatch.Salty)
 				message += fmt.Sprintf("Ep#: %s", gameMatch.EpisodeNum)
-			} else if gameMatch.NGP == -1 {
-				ngpStatus = minusEmoji
-				message += fmt.Sprintf("NGP: :%s: %s", ngpStatus, gameMatch.Salty)
+			} else if gameMatch.Approval == -1 {
+				approvalStatus = minusEmoji
+				message += fmt.Sprintf("Approval: :%s: %s", approvalStatus, gameMatch.Salty)
 			}
 
 			_, _ = s.ChannelMessageSend(m.ChannelID, message)

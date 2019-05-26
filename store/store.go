@@ -2,7 +2,7 @@ package store
 
 import (
   "database/sql"
-	"github.com/AntJanus/ngp-bot/config"
+	"github.com/AntJanus/budget-arcade-bot/config"
 )
 
 func SaltySave(gameName string, userName string) error {

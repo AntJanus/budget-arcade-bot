@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/AntJanus/ngp-bot/bot"
-	"github.com/AntJanus/ngp-bot/config"
+	"github.com/AntJanus/budget-arcade-bot/bot"
+	"github.com/AntJanus/budget-arcade-bot/config"
 )
 
 func main() {

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/AntJanus/ngp-bot/config"
+	"github.com/AntJanus/budget-arcade-bot/config"
 	"github.com/lithammer/fuzzysearch/fuzzy"
 	"github.com/schollz/closestmatch"
 )
@@ -26,7 +26,7 @@ type RowStruct struct {
 	Name        string
 	Date        string
 	Platform    string
-	NGP         int
+	Approval    int
 	EpisodeNum  string
 	EpisodeLink string
 	Guest       string
@@ -66,36 +66,34 @@ func ReadSheet(gameName string) (RowStruct, error) {
 
 	for key, val := range sheet.Values {
 		// skip first 2 rows
-		if key == 0 || key == 1 {
+		if key == 0 {
 			continue
 		}
 
 		/*
 			Structure:
-				Title
-				Date
-				Original System
-				Episode #,
-				NG+
+				Name
+				Platform
+				Episode
+				Seal of Approval
 		*/
 
 		gameTitles = append(gameTitles, val[0])
 
 		rowMap := RowStruct{
 			Name:       val[0],
-			Date:       checkIfExists(1, val),
-			Platform:   checkIfExists(2, val),
-			EpisodeNum: checkIfExists(3, val),
-			NGP:        0,
+			Platform:   checkIfExists(1, val),
+			EpisodeNum: checkIfExists(2, val),
+			Approval:   0,
 			ExactMatch: false,
 			Salty:      "",
 		}
 
-		if checkIfExists(4, val) != "" {
-			if val[4] == "-" || val[4] == "--" {
-				rowMap.NGP = -1
-			} else if val[4] == "NG++" || val[4] == "NG+" {
-				rowMap.NGP = 1
+		if checkIfExists(3, val) != "" {
+			if val[3] == "No" || val[3] == "no" {
+				rowMap.Approval = -1
+			} else if val[3] == "Yes" || val[3] == "yes" {
+				rowMap.Approval = 1
 			}
 		}
 

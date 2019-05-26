@@ -117,7 +117,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			releaseDate := game.FirstReleaseDate
-			unixDate := time.Unix(releaseDate/1000, 0)
+			unixDate := time.Unix(releaseDate, 0)
 			humanDate := unixDate.Format("01/02/2006")
 
 			nowDate := time.Now()

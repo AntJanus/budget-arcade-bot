@@ -133,7 +133,7 @@ func messageHandler(s *discordgo.Session, m *discordgo.MessageCreate) {
 			}
 
 			// cover
-			_, _ = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", game.Cover.URL))
+			_, _ = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("%s", game.URL))
 
 			// game information
 			message := ""

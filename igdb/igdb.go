@@ -1,40 +1,42 @@
 package igdb
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"net/url"
-	"strings"
 
 	"github.com/AntJanus/ngp-bot/config"
 )
 
 var (
-	apiURL       = "https://api-2445582011268.apicast.io"
-	searchURL    = apiURL + "/games/?search="
-	searchFields = "id,name,first_release_date,url,summary,rating,time_to_beat,cover"
+	searchURL   = "games"
+	searchQuery = "search \"%s\"; fields name,first_release_date,url;"
 )
 
 var client = &http.Client{}
 
+/*
+GameStruct represents the structure of a game returned from IGDB
+*/
 type GameStruct struct {
-	ID               int    `json:"id"`
 	Name             string `json:"name"`
 	URL              string `json:"url"`
 	FirstReleaseDate int64  `json:"first_release_date,omitempty"`
-	Cover            struct {
-		URL          string `json:"url"`
-		CloudinaryID string `json:"cloudinary_id"`
-		Width        int    `json:"width"`
-		Height       int    `json:"height"`
-	} `json:"cover,omitempty"`
 }
+
+/*
+GameList is a list of GameStruct
+*/
 type GameList []GameStruct
 
+/*
+Search fires off a request to IGDB and returns a game
+*/
 func Search(gameName string) (GameStruct, error) {
-	urlQuery := url.QueryEscape(gameName)
-	req, err := http.NewRequest("GET", searchURL+urlQuery+"&fields="+searchFields, nil)
+	requestURL := fmt.Sprintf("%s/%s", config.IGDBUrl, searchURL)
+	searchBody := []byte(fmt.Sprintf(searchQuery, gameName))
+	req, err := http.NewRequest("POST", requestURL, bytes.NewBuffer(searchBody))
 
 	req.Header.Add("user-key", config.IGDBKey)
 	req.Header.Add("Accepts", "application/json")
@@ -62,10 +64,6 @@ func Search(gameName string) (GameStruct, error) {
 	}
 
 	game := games[0]
-
-	if strings.HasPrefix(game.Cover.URL, "//") {
-		game.Cover.URL = "https:" + game.Cover.URL
-	}
 
 	return game, err
 }
